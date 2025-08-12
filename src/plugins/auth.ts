@@ -18,12 +18,18 @@ export default fp(async (app) => {
     }
 
     const token = auth.slice('Bearer '.length).trim();
-    const payload = await decode({
-      token,
-      secret: app.config.NEXTAUTH_SECRET,
-      salt: app.config.NEXTAUTH_SECRET
-      // salt defaults to cookie name internally; not needed here since we pass raw token
-    });
+    let payload: any;
+    try {
+      payload = await decode({
+        token,
+        secret: app.config.NEXTAUTH_SECRET,
+        salt: app.config.NEXTAUTH_SALT
+        // salt defaults to cookie name internally; not needed here since we pass raw token
+      });
+    } catch (err) {
+      app.log.warn({ err, requestId: req.id }, 'Failed to decode session token');
+      return reply.code(401).send({ ok: false, statusCode: 401, error: 'Unauthorized', code: 'TOKEN_INVALID', message: 'Invalid or expired session token', requestId: req.id });
+    }
 
     if (!payload || (payload as any).exp * 1000 < Date.now()) {
       return reply.code(401).send({ ok: false, statusCode: 401, error: 'Unauthorized', code: 'TOKEN_INVALID', message: 'Invalid or expired session token', requestId: req.id });

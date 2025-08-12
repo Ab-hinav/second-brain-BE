@@ -26,5 +26,17 @@ export async function build() {
 }
 
 
-build().then(app => app.listen({ host: process.env.HOST, port: Number(process.env.PORT) }));
+build()
+  .then(async (app) => {
+    try {
+      await app.listen({ host: process.env.HOST, port: Number(process.env.PORT) });
+    } catch (err) {
+      app.log.error(err, 'Failed to start server');
+      process.exit(1);
+    }
+  })
+  .catch((err) => {
+    console.error('Failed to build server', err);
+    process.exit(1);
+  });
 
