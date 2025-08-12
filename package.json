@@ -12,11 +12,11 @@
   },
   "license": "ISC",
   "author": "abhinav",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p .",
+    "build": "tsc -p . && tsc-alias",
     "start": "node dist/server.js",
     "test": "vitest run --passWithNoTests",
     "migrate:make": "tsx node_modules/knex/bin/cli.js migrate:make -x ts",
@@ -44,6 +44,7 @@
   "devDependencies": {
     "@types/node": "^22.5.0",
     "eslint": "^9.9.0",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.19.1",
     "typescript": "^5.5.4",
     "vitest": "^2.0.5"
