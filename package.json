@@ -1,0 +1,50 @@
+{
+  "name": "second-brain-be",
+  "version": "1.0.0",
+  "description": "this is the BE of second brain app",
+  "homepage": "https://github.com/Ab-hinav/second-brain-BE#readme",
+  "bugs": {
+    "url": "https://github.com/Ab-hinav/second-brain-BE/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ab-hinav/second-brain-BE.git"
+  },
+  "license": "ISC",
+  "author": "abhinav",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p .",
+    "start": "node dist/server.js",
+    "migrate:make": "tsx node_modules/knex/bin/cli.js migrate:make -x ts",
+    "migrate:latest": "tsx node_modules/knex/bin/cli.js migrate:latest",
+    "migrate:rollback": "tsx node_modules/knex/bin/cli.js migrate:rollback",
+    "seed:run": "tsx node_modules/knex/bin/cli.js seed:run"
+  },
+  "dependencies": {
+    "@auth/core": "^0.40.0",
+    "@fastify/cors": "^10.0.1",
+    "@fastify/helmet": "^13.0.1",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/sensible": "^6.0.3",
+    "@fastify/swagger": "^9.5.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "dotenv": "^16.4.5",
+    "fastify": "^5.5.0",
+    "fastify-plugin": "^4.5.1",
+    "fastify-type-provider-zod": "^5.0.3",
+    "jose": "^5.9.3",
+    "knex": "^3.1.0",
+    "pg": "^8.12.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "eslint": "^9.9.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
