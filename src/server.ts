@@ -29,7 +29,7 @@ export async function build() {
 build()
   .then(async (app) => {
     try {
-      await app.listen({ host: process.env.HOST, port: Number(process.env.PORT) });
+      await app.listen({ host: app.config.HOST, port: app.config.PORT });
     } catch (err) {
       app.log.error(err, 'Failed to start server');
       process.exit(1);
