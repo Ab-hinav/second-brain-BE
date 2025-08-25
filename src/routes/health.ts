@@ -29,7 +29,23 @@ const plugin: FastifyPluginAsync = async (app) => {
       version: '0.1.0',
       now: new Date().toISOString(),
     };
-    return req.query.extended ? { ...base } : base;
+    
+    if (req.query.extended) {
+      try {
+        const dbHealth = await app.knex.table("users").select();
+
+        // return { ...base, db: dbHealth.length > 0 ? "OK" : "XXXX" };
+      } catch (error) {
+        console.log("Failed with", error);
+        return { ...base, db: "XXXX" };
+      }
+    } else {
+      // return base;
+    }
+
+
+
+
   });
 };
 

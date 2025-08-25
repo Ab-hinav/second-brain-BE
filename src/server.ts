@@ -17,7 +17,7 @@ export async function build() {
   await app.register(envPlugin);
   await app.register(securityPlugin);
   await app.register(knexPlugin);
-  await app.register(authPlugin);     // uses NEXTAUTH_SECRET
+  await app.register(authPlugin)
   await app.register(swaggerPlugin);
   await app.register(routes);
   await app.register(errors);
