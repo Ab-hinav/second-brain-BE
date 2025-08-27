@@ -16,7 +16,11 @@ const EnvSchema = z.object({
   DB_USER: z.string(),
   DB_PASSWORD: z.string(),
   DB_NAME: z.string(),
+
   JWT_SECRET: z.string().min(3),
+  FE_JWS_PUBLIC_PEM: z.string().min(3),
+  FE_JWS_ISS: z.string().min(3),
+  FE_JWS_AUD: z.string().min(3),
 
   RATE_LIMIT_MAX: z.coerce.number().default(120),
   RATE_LIMIT_TIME_WINDOW: z.string().default('1 minute'),

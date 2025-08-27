@@ -6,17 +6,39 @@
 import { FastifyPluginAsync } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import z from "zod";
-import { SignUpHelper } from "../helpers/auth.helpers";
+import { exchangeTokenHelper, meHelper, signInHelper, signUpHelper } from "../helpers/auth.helpers";
 
 
-export const AuthBody = z.object({
+export const SignUpBody = z.object({
     name: z.string().min(3),
     email: z.email(),
     password: z.string().min(3)
 })
 
-export const SignUpRes = z.object({
+export const SignInBody = z.object({
+    email: z.email(),
+    password: z.string().min(3)
+}) 
+
+export const AuthExchangeBody = z.object({
+    assertion: z.string(),
+    provider: z.enum(['google','github'])
+})
+
+const SignUpRes = z.object({
     message : z.string()
+})
+
+const SignInRes = z.object({
+    access_token :z.string(),
+    refresh_token: z.string(),
+    expires_at: z.string()
+})
+
+const meRes = z.object({
+    name: z.string(),
+    email: z.email(),
+    avatar_url: z.string().url().nullable().optional()
 })
 
 
@@ -28,13 +50,46 @@ const plugin: FastifyPluginAsync = async (app) =>{
     r.post('/signup', {
         schema: {
             tags: ['auth'],
-            body: AuthBody,
+            body: SignUpBody,
             response: {
                 201: SignUpRes,
             },
         },
-    }, async (req,reply) => SignUpHelper(app.knex,req,reply));
+    }, async (req,reply) => signUpHelper(app,req,reply));
+
+    r.post('/signin',{
+        schema: {
+            tags: ['auth'],
+            body: SignInBody,
+            response: {
+                200: SignInRes,
+            },
+        },
+    } ,async (req) => signInHelper(app,req)  )
+
+    r.get('/me',{
+        //@ts-ignore
+        preHandler: [app.authenticate],
+        schema: {
+            tags: ['auth'],
+            response: {
+                200: meRes,
+            },
+        },
+    } ,async (req) => meHelper(app,req)  )
+
+    r.post('/auth/exchange',{
+        schema: {
+            tags: ['auth'],
+            body: AuthExchangeBody,
+            response: {
+                200: SignInRes,
+            },
+        },
+    } ,async (req) => exchangeTokenHelper(app, req) )
 
 }
 
 
+
+export default plugin;
