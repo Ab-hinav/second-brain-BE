@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import user, { AuthExchangeBody, SignInBody, SignUpBody } from "../routes/user";
+import user, { AuthExchangeBody, RefreshTokenBody, SignInBody, SignUpBody } from "../routes/user";
 import z from "zod";
 import * as jose from "jose";
 
@@ -151,4 +151,41 @@ export async function exchangeTokenHelper(
   } catch (error) {
     throw AppError.internal("BE-01", "Issue while saving the user");
   }
+}
+
+export async function getRefreshToken(
+  app: FastifyInstance,
+  req: FastifyRequest
+) {
+  const { refreshToken } = req.body as z.infer<typeof RefreshTokenBody>;
+
+  const isTokenExpired = (token:string) =>{
+    if(!token) return true;
+    try {
+
+        const decodedToken = app.jwt.decode(token);
+        const currentTIme = Date.now()/1000;
+
+        if(decodedToken){
+            // @ts-ignore
+            return decodedToken.exp < currentTIme;
+        }
+
+        return true
+
+    }catch(error){
+        app.log.info('error in decoding token'+error)
+        return true
+    }
+  }
+
+  if(!isTokenExpired(refreshToken)){
+
+    const {id} = app.jwt.decode(refreshToken) as {id:string};
+    return getTokenData(id,app);
+
+  }
+  
+
+    throw AppError.unauthorized('BE-03','your refresh token expired') ;
 }

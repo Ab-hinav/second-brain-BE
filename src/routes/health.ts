@@ -40,7 +40,7 @@ const plugin: FastifyPluginAsync = async (app) => {
           const dbHealth = await app.knex.table("users").select();
           return { ...base, db: dbHealth.length > 0 ? "OK" : "XXXX" };
         } catch (error) {
-          throw AppError.internal("BE-01", "DB_HEALTH_FAILED")
+          throw AppError.internal("BE-00", "DB_HEALTH_FAILED")
         }
       } else {
         return base;
