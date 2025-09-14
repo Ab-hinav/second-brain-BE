@@ -23,7 +23,6 @@ export async function getBrainHelper(
   req: FastifyRequest
 ) {
   const knex = app.knex;
-  // @ts-ignore
   const { id } = req.user;
 
   try {
@@ -44,7 +43,12 @@ export async function getBrainHelper(
 
     // Convert aggregated content types to boolean flags for the UI
     const brainNav = brainData.map((r) => {
-      const set = new Set(r.content_types.split(", "));
+      const set = new Set(
+        r.content_types
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter(Boolean)
+      );
 
       return {
         id: r.id,
@@ -73,7 +77,6 @@ export async function getBrainDetailHelper(
   req: FastifyRequest
 ) {
   const knex = app.knex;
-  // @ts-ignore
   const { id } = req.user;
   const { brainId } = req.params as { brainId: string };
 
@@ -156,12 +159,11 @@ export async function createBrainHelper(
   req: FastifyRequest
 ) {
   const knex = app.knex;
-  // @ts-ignore
   const { id } = req.user;
   const { name, description } = req.body as z.infer<typeof CreateBrainBody>;
 
   // Enforce brain name uniqueness (global). Adjust if it should be per-user.
-  const exists = await knex.table("brains").where("name", name).first();
+  const exists = await knex.table("brains").where({ name, owner_id: id }).first();
 
   if (!isEmpty(exists)) {
     throw AppError.conflict("BE-09", "Brain name already taken");

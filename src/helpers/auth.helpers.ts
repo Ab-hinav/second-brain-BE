@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import user, { AuthExchangeBody, RefreshTokenBody, SignInBody, SignUpBody } from "../routes/user";
+import { AuthExchangeBody, RefreshTokenBody, SignInBody, SignUpBody } from "../routes/user";
 import z from "zod";
 import * as jose from "jose";
 
@@ -53,9 +53,7 @@ export async function signUpHelper(
     app.log.info(createUser, "User created successfully");
     return reply.code(201).send({ message: "User created successfully" });
   });
-
-  // If we reached here, something unexpected happened
-  throw AppError.internal("BE-01", "Something went wrong");
+  return;
 }
 
 /**
@@ -85,7 +83,7 @@ export async function signInHelper(app: FastifyInstance, req: FastifyRequest) {
  * Return basic profile info for the authenticated user.
  */
 export async function meHelper(app: FastifyInstance, req: FastifyRequest) {
-  // @ts-ignore
+  //@ts-ignore
   const { id } = req.user;
   const knex = app.knex;
 
@@ -124,7 +122,6 @@ export async function exchangeTokenHelper(
   console.log(payload);
 
   try {
-    let currentUser;
 
     // Two cases: user already exists (by email) or needs to be created
 
@@ -141,7 +138,7 @@ export async function exchangeTokenHelper(
     // Enrich existing user if name/avatar are empty
 
     if (!isEmpty(user) && (isEmpty(user.avatar_url) || isEmpty(user.name))) {
-      knex.transaction(async (trx) => {
+      await knex.transaction(async (trx) => {
         await trx("users").where({ id: user.id }).update({
           avatar_url: payload.avatar_url,
           name: payload.name,
@@ -154,7 +151,7 @@ export async function exchangeTokenHelper(
     }
 
     // New user path
-    knex.transaction(async (trx) => {
+    return await knex.transaction(async (trx) => {
       const insertedData = await trx("users").insert(
         {
           email: payload.email,
@@ -164,11 +161,8 @@ export async function exchangeTokenHelper(
         ["id"]
       );
 
-      console.log(insertedData);
-
-      currentUser = insertedData[0];
-
-      return getTokenData(currentUser.id, app);
+      const { id } = insertedData[0];
+      return getTokenData(id, app);
     });
   } catch (error) {
     throw AppError.internal("BE-01", "Issue while saving the user");

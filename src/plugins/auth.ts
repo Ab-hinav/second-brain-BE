@@ -7,9 +7,9 @@ import { FastifyRequest } from 'fastify/types/request';
 
 declare module 'fastify' {
   interface FastifyJWT {
-    payload: { id: number }; // User payload definition
+    payload: { id: string }; // User payload definition
     user: {
-      id: number;
+      id: string;
     }; // User object available in request.user
   }
 }

@@ -13,5 +13,5 @@ export const isEmpty = (obj:object | string | null | undefined) =>{
     if(typeof obj == 'object'){
         return Object.keys(obj).length===0
     }
-
+    return false;
 }

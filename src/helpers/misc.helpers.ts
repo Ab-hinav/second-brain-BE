@@ -16,7 +16,7 @@ export async function getAllTags(app:FastifyInstance,req:FastifyRequest){
     // Fetch tags limited to those brains
     const allTagsData = await knex
       .table("tags as t")
-      .where("t.brain_id", "in", allBrainIdQuery)
+      .whereIn("t.brain_id", allBrainIdQuery)
       .select<{name:string,color:string}[]>({name: "t.name", color: "t.color"});
 
     return allTagsData

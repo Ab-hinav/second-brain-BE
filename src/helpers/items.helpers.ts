@@ -78,8 +78,7 @@ export async function createTweetItemHelper(
 
   try {
     console.log('got request', req.body)
-    
-  // @ts-ignore
+    // @ts-ignore
   const { id } = req.user;
   const { title,content,tags,url,brainId,pinned } = req.body as z.infer<typeof CreateItemBody>;
 
