@@ -1,3 +1,6 @@
+/**
+ * Domain error with HTTP status, code, and optional details/title.
+ */
 export class AppError extends Error {
   code: string;
   statusCode: number;
@@ -13,6 +16,7 @@ export class AppError extends Error {
     this.title = title;
   }
 
+  // Convenience constructors for common HTTP errors
   static badRequest(code: string, message: string, details?: unknown) {
     return new AppError(code, 400, message, details, 'Bad Request');
   }

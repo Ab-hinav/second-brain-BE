@@ -8,12 +8,16 @@ import routes from './routes';
 import errors from './util/errors';
 import { validatorCompiler, serializerCompiler } from 'fastify-type-provider-zod';
 
+/**
+ * Build and start the Fastify app: registers core plugins, routes, and error handlers.
+ */
 export async function build() {
   const app = Fastify({ logger: { level: process.env.LOG_LEVEL || 'info' } });
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
+  // Order matters: env -> security -> db -> auth -> swagger -> routes -> errors
   await app.register(envPlugin);
   await app.register(securityPlugin);
   await app.register(knexPlugin);
@@ -26,6 +30,7 @@ export async function build() {
 }
 
 
+// Standalone start when run directly
 build()
   .then(async (app) => {
     try {
@@ -39,4 +44,3 @@ build()
     console.error('Failed to build server', err);
     process.exit(1);
   });
-

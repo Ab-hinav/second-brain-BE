@@ -14,6 +14,9 @@ declare module 'fastify' {
   }
 }
 
+/**
+ * Auth plugin: JWT + bcrypt and an `authenticate` decorator for route guards.
+ */
 export default fp(async (app) => {
   app.register(fastifyJwt, {
     secret: app.config.JWT_SECRET,

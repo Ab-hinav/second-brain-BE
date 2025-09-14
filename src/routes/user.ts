@@ -1,8 +1,9 @@
-// api/v1/signup
-// api/v1/signin
-// api/v1/me
-// api/v1/auth/exchange
-// api/v1/auth/refresh
+// User/auth routes
+// - POST   /signup
+// - POST   /signin
+// - GET    /me
+// - POST   /auth/exchange (FE assertion -> BE JWTs)
+// - POST   /auth/refresh (refresh -> new tokens)
 
 import { FastifyPluginAsync } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -51,6 +52,9 @@ export const RefreshTokenBody = z.object({
   refreshToken: z.string(),
 });
 
+/**
+ * User authentication and profile endpoints.
+ */
 const plugin: FastifyPluginAsync = async (app) => {
   const r = app.withTypeProvider<ZodTypeProvider>();
 

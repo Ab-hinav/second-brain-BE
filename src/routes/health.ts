@@ -3,10 +3,12 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { AppError } from '../util/appError';
 
+// Optional flag to include DB health
 const HealthQuery = z.object({
   extended: z.coerce.boolean().optional().default(false),
 });
 
+// Standard health payload (with optional DB indicator)
 const HealthResponse = z.object({
   status: z.literal('ok'),
   uptime: z.number(),
@@ -15,6 +17,9 @@ const HealthResponse = z.object({
   db: z.string().optional(),
 });
 
+/**
+ * Health endpoint with optional DB connectivity check.
+ */
 const plugin: FastifyPluginAsync = async (app) => {
   const r = app.withTypeProvider<ZodTypeProvider>();
 

@@ -1,6 +1,9 @@
 import { generateKeyPair, exportPKCS8, exportSPKI } from 'jose';
 import fs from 'fs';
 
+/**
+ * Utility script to generate ES256 key pair for FE JWS exchange.
+ */
 (async () => {
   const { privateKey, publicKey } = await generateKeyPair('ES256',{ extractable: true }); // P-256
 

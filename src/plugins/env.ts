@@ -2,6 +2,7 @@ import fp from 'fastify-plugin';
 import { z } from 'zod';
 import 'dotenv/config';
 
+// Centralized environment validation and defaults
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   HOST: z.string().default('0.0.0.0'),
@@ -35,6 +36,9 @@ declare module 'fastify' {
   }
 }
 
+/**
+ * Env plugin: parses and validates process.env, decorates `app.config`.
+ */
 export default fp(async (app) => {
   const parsed = EnvSchema.safeParse(process.env);
   if (!parsed.success) {

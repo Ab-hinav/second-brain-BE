@@ -1,6 +1,9 @@
 import fp from 'fastify-plugin';
 import knexFactory, { Knex } from 'knex';
 
+/**
+ * Knex plugin: initializes a Postgres client (searchPath=app) and decorates `app.knex`.
+ */
 export default fp(async (app) => {
   const knex = knexFactory({
     client: 'pg',
