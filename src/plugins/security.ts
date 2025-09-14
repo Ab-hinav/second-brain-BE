@@ -4,6 +4,9 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import sensible from '@fastify/sensible';
 
+/**
+ * Security/UX plugin bundle: sensible, CORS, helmet, and rate limiting.
+ */
 export default fp(async (app) => {
   await app.register(sensible);
   await app.register(cors, { origin: app.config.CORS_ORIGIN, credentials: app.config.CORS_CREDENTIALS });

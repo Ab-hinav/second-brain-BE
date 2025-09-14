@@ -2,6 +2,9 @@ import fp from 'fastify-plugin';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import { AppError } from '../util/appError';
 
+/**
+ * Error handling plugin: 404 + central error handler with Zod and domain error support.
+ */
 export default fp(async (app) => {
   // 404 handler for unknown routes
   app.setNotFoundHandler((req, reply) => {

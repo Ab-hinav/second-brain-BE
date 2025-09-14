@@ -3,6 +3,9 @@ import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import { jsonSchemaTransform } from 'fastify-type-provider-zod';
 
+/**
+ * Swagger/OpenAPI plugin: exposes docs when SWAGGER_ENABLED is true.
+ */
 export default fp(async (app) => {
   if (!app.config.SWAGGER_ENABLED) return;
 

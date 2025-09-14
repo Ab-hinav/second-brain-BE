@@ -2,6 +2,7 @@ import fp from 'fastify-plugin';
 import { z } from 'zod';
 import 'dotenv/config';
 
+// Centralized environment validation and defaults
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   HOST: z.string().default('0.0.0.0'),
@@ -11,12 +12,16 @@ const EnvSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
 
-  DATABASE_URL: z.string().url(),
-  KNEX_MIGRATIONS_DIR: z.string().default('./db/migrations'),
-  KNEX_SEEDS_DIR: z.string().default('./db/seeds'),
+  DB_HOST: z.string(),
+  DB_PORT: z.coerce.number(),
+  DB_USER: z.string(),
+  DB_PASSWORD: z.string(),
+  DB_NAME: z.string(),
 
-  NEXTAUTH_SECRET: z.string().min(16, 'NEXTAUTH_SECRET must be set'),
-  NEXTAUTH_SALT: z.string(),
+  JWT_SECRET: z.string().min(3),
+  FE_JWS_PUBLIC_PEM: z.string().min(3),
+  FE_JWS_ISS: z.string().min(3),
+  FE_JWS_AUD: z.string().min(3),
 
   RATE_LIMIT_MAX: z.coerce.number().default(120),
   RATE_LIMIT_TIME_WINDOW: z.string().default('1 minute'),
@@ -31,6 +36,9 @@ declare module 'fastify' {
   }
 }
 
+/**
+ * Env plugin: parses and validates process.env, decorates `app.config`.
+ */
 export default fp(async (app) => {
   const parsed = EnvSchema.safeParse(process.env);
   if (!parsed.success) {
