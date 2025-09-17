@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { AppError } from "../util/appError";
 import { CreateItemBody } from "../routes/item";
+import { isEmpty } from "./commons";
 import z from "zod";
 
 
@@ -82,6 +83,16 @@ export async function createTweetItemHelper(
   const { id } = req.user;
   const { title,content,tags,url,brainId,pinned } = req.body as z.infer<typeof CreateItemBody>;
 
+  // Verify that the target brain belongs to the requesting user
+  const brain = await trx
+    .table("brains")
+    .where({ id: brainId, owner_id: id })
+    .first("id");
+
+  if (isEmpty(brain)) {
+    throw AppError.notFound("BE-10", "Brain not found");
+  }
+
   // Try to fetch oEmbed metadata for the tweet URL if present
   const metadata = await getXMetadata(url);
 
@@ -131,6 +142,10 @@ export async function createTweetItemHelper(
     console.log(err);
 
     await trx.rollback();
+
+    if (err instanceof AppError) {
+      throw err;
+    }
 
     throw AppError.internal("BE-Internal", "Something Went Wrong");
   }
