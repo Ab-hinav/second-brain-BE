@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import z from "zod";
-import { getAllTags } from "../helpers/misc.helpers";
+import { getAllTags, prefillHelper } from "../helpers/misc.helpers";
 
 export const Tag = z.object({
   name: z.string(),
@@ -15,6 +15,22 @@ export const TagRes = z.array(Tag);
  */
 const plugin: FastifyPluginAsync = async (app) => {
   const r = app.withTypeProvider<ZodTypeProvider>();
+
+  // Public: Prefill metadata for a URL (Twitter/YouTube/noembed/OG)
+  const PrefillQuery = z.object({ url: z.string().url() });
+  const PrefillResp = z.object({ title: z.string().optional(), description: z.string().optional() });
+
+  r.get(
+    "/prefill",
+    {
+      schema: {
+        tags: ["misc"],
+        querystring: PrefillQuery,
+        response: { 200: PrefillResp },
+      },
+    },
+    async (req) => prefillHelper(app, req)
+  );
 
   r.get(
     "/tags",
