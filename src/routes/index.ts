@@ -7,6 +7,7 @@ import user from './user';
 import brains from './brain';
 import misc from './misc';
 import items from './item';
+import prefill from './prefill';
 
 /**
  * Mount all app routes. Public routes at root; authenticated API under /api/v1.
@@ -20,6 +21,7 @@ const routes: FastifyPluginAsync = async (app) => {
     await v1.register(user);
     await v1.register(brains)  // brain-nav , brain
     await v1.register(misc);
+    await v1.register(prefill);
     // await v1.register(me);      // e.g., GET /api/v1/me
     // await v1.register(brains);  // e.g., /api/v1/brains
     await v1.register(items);   // item/tweets
