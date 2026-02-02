@@ -7,7 +7,6 @@ import { FastifyInstance, FastifyRequest } from "fastify";
 export async function getAllTags(app:FastifyInstance,req:FastifyRequest){
 
     const knex = app.knex;
-    // @ts-ignore
     const { id } = req.user;
 
     // Subquery: all brain ids owned by the user

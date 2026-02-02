@@ -83,7 +83,6 @@ export async function signInHelper(app: FastifyInstance, req: FastifyRequest) {
  * Return basic profile info for the authenticated user.
  */
 export async function meHelper(app: FastifyInstance, req: FastifyRequest) {
-  //@ts-ignore
   const { id } = req.user;
   const knex = app.knex;
 
@@ -186,9 +185,8 @@ export async function getRefreshToken(
         const decodedToken = app.jwt.decode(token);
         const currentTIme = Date.now()/1000;
 
-        if(decodedToken){
-            // @ts-ignore
-            return decodedToken.exp < currentTIme;
+        if(decodedToken && typeof decodedToken !== 'string' && 'exp' in decodedToken){
+            return (decodedToken as { exp: number }).exp < currentTIme;
         }
 
         return true

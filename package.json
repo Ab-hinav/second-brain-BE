@@ -18,7 +18,9 @@
     "dev": "tsx watch src/server.ts | pino-pretty",
     "build": "tsc -p . && tsc-alias",
     "start": "node dist/server.js",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "migrate": "knex migrate:latest",
+    "migrate:make": "knex migrate:make"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

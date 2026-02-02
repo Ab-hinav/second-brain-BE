@@ -61,7 +61,7 @@ const plugin: FastifyPluginAsync = async (app) => {
     r.get(
       "/brain-nav",
       
-      { //@ts-ignore
+      {
         preHandler: [app.authenticate],
         schema: {
           tags: ["brain"],
@@ -74,7 +74,7 @@ const plugin: FastifyPluginAsync = async (app) => {
     );
 
     r.post("/brain",
-        { //@ts-ignore
+        {
             preHandler: [app.authenticate],
             schema: {
               tags: ["brain"],
@@ -89,7 +89,7 @@ const plugin: FastifyPluginAsync = async (app) => {
 
     r.get(
       "/brain-detail/:brainId",
-      { //@ts-ignore
+      {
         preHandler: [app.authenticate],
         schema: {
           tags: ["brain"],
