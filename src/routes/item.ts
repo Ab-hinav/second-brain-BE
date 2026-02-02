@@ -29,7 +29,6 @@ const plugin: FastifyPluginAsync = async (app) => {
     "/item/tweet",
 
     {
-      //@ts-ignore
       preHandler: [app.authenticate],
       schema: {
         tags: ["items", "tweets"],

@@ -35,7 +35,6 @@ const plugin: FastifyPluginAsync = async (app) => {
   r.get(
     "/tags",
     {
-      //@ts-ignore
       preHandler: [app.authenticate],
       schema: {
         tags: ["all-tags"],

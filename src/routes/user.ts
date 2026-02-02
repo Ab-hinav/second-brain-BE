@@ -89,7 +89,6 @@ const plugin: FastifyPluginAsync = async (app) => {
   r.get(
     "/me",
     {
-      //@ts-ignore
       preHandler: [app.authenticate],
       schema: {
         tags: ["auth"],

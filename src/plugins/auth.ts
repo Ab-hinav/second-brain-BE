@@ -5,12 +5,18 @@ import fp from 'fastify-plugin';
 import { FastifyReply } from 'fastify/types/reply';
 import { FastifyRequest } from 'fastify/types/request';
 
-declare module 'fastify' {
+declare module '@fastify/jwt' {
   interface FastifyJWT {
     payload: { id: string }; // User payload definition
     user: {
       id: string;
     }; // User object available in request.user
+  }
+}
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    authenticate: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
 }
 
