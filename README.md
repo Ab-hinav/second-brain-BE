@@ -1,191 +1,88 @@
-# Second Brain API (Phase 0)
+# Second Brain API
 
-A small, fast TypeScript API to organize your “second brain” — items like tweets, links, notes, and YouTube videos — into user-owned brains with tags and counts.
+A fast, scalable TypeScript API to organize your "second brain" items (tweets, links, notes, videos) into user-owned spaces. Built with Fastify, Knex (Postgres), and Zod.
 
-Stack: Fastify 5, TypeScript, Zod, Knex (Postgres), fastify-jwt, bcrypt, Swagger.
+## Features
 
-## Overview
+- **Brain Management**: Create and manage multiple brains to segregate content.
+- **Item Support**: Store Tweets with auto-fetching oEmbed data (YouTube, Links, Notes coming soon).
+- **Tagging**: Categorize items with tags unique to each brain.
+- **Authentication**: JWT-based auth with Email/Password or Frontend Assertion Exchange.
+- **Documentation**: Integrated Swagger UI.
 
-- Brains: A user can create one or more “brains” that own items and tags.
-- Items: Currently supports creating Tweet items; more types coming soon (links, notes, videos, YouTube).
-- Tags: Tags are per-brain with composite uniqueness `(brain_id, name)` and linked to items via `item_tags`.
-- Auth: Email/password auth with JWT; optional FE assertion exchange using ES256 JWS.
-- Docs: Optional Swagger UI, plus typed request/response via Zod.
+## Getting Started
 
-## Project Structure
+### Prerequisites
 
-- `src/server.ts`: App bootstrap, plugin and route registration.
-- `src/plugins/*`: Environment validation, security (CORS/helmet/rate-limit), Knex (PG), auth (JWT + bcrypt), Swagger.
-- `src/routes/*`: Versioned HTTP routes (mounted under `/api/v1` for authenticated endpoints).
-- `src/helpers/*`: Route logic split into helpers (DB queries, validation, mapping).
-- `src/util/*`: Error class, error handling plugin, small helpers.
+- Node.js (v18+)
+- Postgres Database
 
-Database: Postgres with searchPath `app`. Ensure your tables exist in the `app` schema or adjust `searchPath` in `src/plugins/knex.ts`.
+### Installation
 
-## Environment
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/Ab-hinav/second-brain-BE.git
+    cd second-brain-be
+    npm install
+    ```
 
-Copy `.env.example` to `.env` and fill values:
+2.  **Configuration**
+    Copy `.env.example` to `.env` and update the values.
+    ```bash
+    cp .env.example .env
+    ```
+    *Note: Ensure the `app` schema exists in your Postgres database or update `DB_SEARCH_PATH` in the config.*
 
-```
-NODE_ENV=development
-HOST=0.0.0.0
-PORT=4000
-LOG_LEVEL=info
+3.  **Run the application**
+    ```bash
+    # Development
+    npm run dev
 
-# CORS
-CORS_ORIGIN=http://localhost:3000
-CORS_CREDENTIALS=true
+    # Production
+    npm run build
+    npm start
+    ```
+    API will be running at `http://localhost:4000`.
+    Swagger documentation available at `http://localhost:4000/docs`.
 
-# Postgres
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=second_brain
+## API Routes
 
-# JWT for API
-JWT_SECRET=your-long-random-secret
+Base URL: `/api/v1`
 
-# Frontend JWS (optional assertion exchange)
-FE_JWS_PUBLIC_PEM="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----\n"
-FE_JWS_ISS=your-fe-issuer
-FE_JWS_AUD=your-fe-audience
+### Authentication
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/signup` | Register a new user `{ name, email, password }` |
+| `POST` | `/signin` | Login `{ email, password }` |
+| `POST` | `/auth/refresh` | Refresh access token `{ refreshToken }` |
+| `POST` | `/auth/exchange` | Exchange FE assertion for JWT `{ assertion, provider }` |
+| `GET` | `/me` | Get current user profile |
 
-# Rate limit
-RATE_LIMIT_MAX=120
-RATE_LIMIT_TIME_WINDOW=1 minute
+### Brains
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/brain-nav` | List all brains with content type flags |
+| `POST` | `/brain` | Create a new brain `{ name, description }` |
+| `GET` | `/brain-detail/:brainId` | Get brain details and item counts |
 
-# Swagger
-SWAGGER_ENABLED=true
-SWAGGER_ROUTE=/docs
-```
+### Items & Tags
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/item/tweet` | Add a Tweet `{ title, content, tags, brainId, url, pinned }` |
+| `GET` | `/tags` | List all tags across brains |
+| `GET` | `/prefill` | Fetch metadata for a URL (Public) |
 
-## Run
+### System
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/health` | API health status (`?extended=true` for DB check) |
+| `GET` | `/` | API Version |
 
-```bash
-npm i
-npm run dev         # Dev mode (TSX + pino-pretty)
+## Development
 
-# Or build + start
-npm run build
-npm start
-```
+- **Scripts**:
+    - `npm run dev`: Start dev server with hot reload.
+    - `npm test`: Run tests using Vitest.
+    - `npx tsx src/scripts/key-gen.ts`: Generate keys for FE JWS exchange.
 
-Swagger UI (if enabled): `http://localhost:4000/docs`
-
-Health: `GET /health` or `GET /health?extended=true` (runs `select 1`).
-
-## Authentication
-
-Two flows are supported:
-
-- Email/password
-  - `POST /api/v1/signup` → 201
-  - `POST /api/v1/signin` → `{ access_token, refresh_token, expires_at }`
-  - `GET  /api/v1/me` → `{ name, email, avatar_url }`
-  - `POST /api/v1/auth/refresh` → new token pair
-
-- FE Assertion Exchange (optional)
-  - `POST /api/v1/auth/exchange` with a FE-signed ES256 JWS
-  - BE verifies using `FE_JWS_PUBLIC_PEM`, then issues API JWTs
-
-Attach `Authorization: Bearer <access_token>` to all authenticated endpoints below.
-
-## Routes (Phase 0)
-
-- Brains
-  - `GET  /api/v1/brain-nav`
-    - Returns brains owned by the user and boolean flags indicating which content types exist.
-  - `POST /api/v1/brain` `{ name, description? }` → `{ id }`
-  - `GET  /api/v1/brain-detail/:brainId` → `{ id, name, description, counts }`
-
-- Items
-  - `POST /api/v1/item/tweet`
-    - Body: `{ title, content, tags: string[], brainId, url?, pinned }`
-    - Behavior: Inserts `items` row (content_type=`tweet`), fetches oEmbed for `url` if provided, upserts tags by `(brain_id, name)`, and inserts rows in `item_tags`.
-
-- Misc
-  - `GET /api/v1/tags`
-    - Returns `{ name, color }[]` for all tags across user-owned brains.
-
-## How It Works
-
-- Plugins
-  - `env`: Validates env vars via Zod and decorates `app.config`.
-  - `security`: sensible, CORS, helmet, rate-limit.
-  - `knex`: Postgres connection with `searchPath: ['app']`, decorates `app.knex`.
-  - `auth`: JWT-based auth with bcrypt, decorates `app.authenticate` for route guards.
-  - `swagger`: Optional OpenAPI docs.
-  - `errors`: NotFound + central error handler (Zod-aware + AppError).
-
-- Brains and Items
-  - Brain ownership is enforced by `owner_id` checks before returning details.
-  - Content type flags are derived from `items.content_type` per brain.
-  - Tag upsert uses `.onConflict(['brain_id','name']).merge()` so tag names can repeat across brains.
-
-## Data Model Notes (expected)
-
-This service expects (names indicative):
-
-- `brains(id, owner_id, name, description, is_default, created_at, ...)`
-- `items(id, brain_id, title, content, content_type, url, is_pinned, metadata jsonb, created_by, created_at, ...)`
-- `tags(id, brain_id, name, color, ...)`
-- `item_tags(item_id, tag_id)`
-
-Constraints recommended:
-
-- Unique `(brain_id, name)` on `tags`.
-- Optional unique `(owner_id, name)` on `brains` (Phase 0 uses this uniqueness scope).
-
-## Examples
-
-Create brain
-
-```bash
-curl -X POST http://localhost:4000/api/v1/brain \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Work","description":"My work brain"}'
-```
-
-Create tweet item
-
-```bash
-curl -X POST http://localhost:4000/api/v1/item/tweet \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"tweet","content":"...","tags":["fastify","ts"],"brainId":"<brain_id>","url":"https://x.com/...","pinned":false}'
-```
-
-Brain detail with counts
-
-```bash
-curl -H "Authorization: Bearer $TOKEN" \
-  http://localhost:4000/api/v1/brain-detail/<brain_id>
-```
-
-## Phase 0 Status
-
-Done
-
-- Auth: signup, signin, me, refresh, optional FE assertion exchange
-- Brains: create, navigation flags, detail counts
-- Items: create Tweet item with oEmbed + tags
-- Tags: list all tags across user-owned brains
-- Infra: env validation, security bundle, knex/pg, swagger (optional), central error handling
-
-To Do (next)
-
-- Additional item types: links, notes, videos, YouTube
-- Item listing (filter by brain, tag, type, pinned), detail, edit, delete
-- Tag management (rename, delete, merge);
-- Search and pagination
-- Tests (unit/integration) and CI
-- Seed/migrations and Docker compose for DB
-- Rate limits and quotas per-user (tuning)
-
-## Dev Tips
-
-- Ensure the `app` schema exists in Postgres or adjust `searchPath` in `src/plugins/knex.ts`.
-- For FE JWS exchange, you can generate keys with `src/scripts/key-gen.ts` (ES256). Use the public key value in `FE_JWS_PUBLIC_PEM`.
-- Logs use pino with pretty printing in dev; use `LOG_LEVEL=debug` for more details.
+- **Stack**: Fastify 5, TypeScript, Knex (PG), Zod, Swagger.
